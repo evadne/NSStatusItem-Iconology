@@ -26,9 +26,84 @@
 
 - (NSSize) _square {
 
-	return NSMakeSize([[NSStatusBar systemStatusBar] thickness], [[NSStatusBar systemStatusBar] thickness]);
+	return NSMakeSize(
+	
+		[[NSStatusBar systemStatusBar] thickness], 
+		[[NSStatusBar systemStatusBar] thickness]
+	
+	);
 
 }
+
+@end
+
+
+
+
+
+
+
+
+
+
+@interface NSProgressIndicatorView : NSView {
+	
+	NSProgressIndicator *indicator;
+	NSView __weak *enclosingView;
+	
+}
+
+@property (retain) NSProgressIndicator *indicator;
+@property (assign) NSView __weak *enclosingView;
+
+@end
+
+
+
+
+
+@implementation NSProgressIndicatorView
+
+@synthesize indicator, enclosingView;
+
+
+
+
+
+- (NSProgressIndicatorView *) init {
+
+	self = [super init];
+	
+	self.indicator = [[NSProgressIndicator alloc] init];
+	
+	[indicator setBezeled:NO];
+	[indicator setStyle:NSProgressIndicatorSpinningStyle];
+	[indicator setControlSize:NSSmallControlSize];
+	[indicator sizeToFit];
+	[indicator setUsesThreadedAnimation:YES];
+	
+	[self addSubview:indicator];
+	
+	[indicator center];
+		
+	return self;
+
+}
+
+
+
+
+
+- (void) drawRect:(NSRect)dirtyRect {
+
+	if ([self.enclosingView respondsToSelector:@selector(drawRect:)])
+	if (!!self.enclosingView) [self.enclosingView drawRect:dirtyRect];
+
+}
+
+
+
+
 
 @end
 
@@ -116,27 +191,33 @@
 
 
 
+
+
+
+
+
+# pragma mark Animation — using NSProgressIndicatorView
+
 - (void) startAnimation {
 
-	NSView *progressIndicatorHolder = [[NSView alloc] init];
-
-	NSProgressIndicator *progressIndicator = [[NSProgressIndicator alloc] init];
-
-	[progressIndicator setBezeled: NO];
-	[progressIndicator setStyle: NSProgressIndicatorSpinningStyle];
-	[progressIndicator setControlSize: NSSmallControlSize];
-	[progressIndicator sizeToFit];
-	[progressIndicator setUsesThreadedAnimation:YES];
-
-	[progressIndicatorHolder addSubview:progressIndicator];
-	[progressIndicator startAnimation:self];
-
+	NSProgressIndicatorView *progressIndicatorHolder = [[NSProgressIndicatorView alloc] init];
+	
 	[self setView:progressIndicatorHolder];
+	progressIndicatorHolder.enclosingView = self;
+
+	[progressIndicatorHolder.indicator center];
+	[progressIndicatorHolder.indicator startAnimation:self];
 	
-	[progressIndicator center];
+	CALayer * aViewLayer = [CALayer layer];
 	
-	[progressIndicator setNextResponder:progressIndicatorHolder];
-	[progressIndicatorHolder setNextResponder:self];
+	[progressIndicatorHolder setLayer:aViewLayer];
+	[progressIndicatorHolder setWantsLayer:YES];
+	[progressIndicatorHolder setContentFilters:[NSArray arrayWithObject:[CIFilter filterWithName:@"CIColorInvert"]]];
+
+	NSLog(@"%@", [progressIndicatorHolder contentFilters]);
+
+	[progressIndicatorHolder.indicator setNextResponder:(NSResponder *)progressIndicatorHolder];
+	[progressIndicatorHolder setNextResponder:(NSResponder *)self];
 
 }
 
@@ -147,22 +228,64 @@
 - (void) stopAnimation {
 
 	[self setView:nil];
-
+	
 }
 
 
 
 
 
-- (void) mouseDown:(NSEvent *) theEvent {
+
+
+
+
+
+# pragma mark Menu Handlers
+
+- (void) menuWillOpen:(NSMenu *)menu {
+
+	if ([self view]) [[self view] setWantsLayer:NO];
+
+	if (![self view]) return;
+	[self drawStatusBarBackgroundInRect:[self view].bounds withHighlight:YES];
+
+}
+
+- (void) menuDidClose:(NSMenu *)menu {
+
+//	[self drawRect:[self view].frame];
+
+	if ([self view]) [[self view] setWantsLayer:YES];
+	
+}
+
+
+
+
+
+- (void) drawRect:(NSSize)theFrame {
+	
+//	[super drawRect];
+	[self drawStatusBarBackgroundInRect:[self view].bounds withHighlight:YES];
+	
+}
+
+
+
+
+
+
+
+
+
+
+# pragma mark Trapping Mouse Events
+
+- (void) mouseDown:(NSEvent *)theEvent {
 
 	[self popUpStatusItemMenu:[self menu]];
-
+	
 }
-
-
-
-
 
 - (void) rightMouseUp:(NSEvent *) theEvent {}
 - (void) mouseUp:(NSEvent *) theEvent {}
