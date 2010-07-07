@@ -203,7 +203,7 @@
 	NSProgressIndicatorView *progressIndicatorHolder = [[NSProgressIndicatorView alloc] init];
 	
 	[self setView:progressIndicatorHolder];
-	progressIndicatorHolder.enclosingView = self;
+//	progressIndicatorHolder.enclosingView = self;
 
 	[progressIndicatorHolder.indicator center];
 	[progressIndicatorHolder.indicator startAnimation:self];
@@ -213,8 +213,6 @@
 	[progressIndicatorHolder setLayer:aViewLayer];
 	[progressIndicatorHolder setWantsLayer:YES];
 	[progressIndicatorHolder setContentFilters:[NSArray arrayWithObject:[CIFilter filterWithName:@"CIColorInvert"]]];
-
-	NSLog(@"%@", [progressIndicatorHolder contentFilters]);
 
 	[progressIndicatorHolder.indicator setNextResponder:(NSResponder *)progressIndicatorHolder];
 	[progressIndicatorHolder setNextResponder:(NSResponder *)self];
@@ -227,6 +225,7 @@
 
 - (void) stopAnimation {
 
+	[self.view removeFromSuperview];
 	[self setView:nil];
 	
 }
@@ -253,8 +252,6 @@
 
 - (void) menuDidClose:(NSMenu *)menu {
 
-//	[self drawRect:[self view].frame];
-
 	if ([self view]) [[self view] setWantsLayer:YES];
 	
 }
@@ -265,7 +262,6 @@
 
 - (void) drawRect:(NSSize)theFrame {
 	
-//	[super drawRect];
 	[self drawStatusBarBackgroundInRect:[self view].bounds withHighlight:YES];
 	
 }
@@ -289,6 +285,10 @@
 
 - (void) rightMouseUp:(NSEvent *) theEvent {}
 - (void) mouseUp:(NSEvent *) theEvent {}
+
+
+
+
 
 @end
 

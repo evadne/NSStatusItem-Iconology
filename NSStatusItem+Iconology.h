@@ -47,8 +47,8 @@
 
 //	Stacking an icon — e.g., a warning sign — over what exists ordinary one.
 
-- (void) overrideIconWithIcon:(NSImage *) image andAlternateIcon:(NSImage *)anotherImage;
-- (void) restoreIcon;
+//	- (void) overrideIconWithIcon:(NSImage *) image andAlternateIcon:(NSImage *)anotherImage;
+//	- (void) restoreIcon;
 
 
 
